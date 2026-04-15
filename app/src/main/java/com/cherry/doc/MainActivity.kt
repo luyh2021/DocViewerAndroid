@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity(),OnClickListener,OnItemClickListener,
                 return true
             }
             R.id.action_online -> {
-                openDoc(url,DocSourceType.URL,null)
+                openDoc(url,DocSourceType.URL,FileType.PDF)
                 return true
             }
             R.id.action_select -> {

@@ -94,6 +94,7 @@ class DocView : FrameLayout,OnDownloadListener, OnWebLoadListener,OnPdfItemClick
     var mOnDocPageChangeListener: OnDocPageChangeListener? = null
 
     var sourceFilePath: String? = null
+    var mFileType: Int = -1
     var mViewPdfInPage: Boolean = true
 
     private lateinit var mRvPdf: PinchZoomRecyclerView
@@ -181,7 +182,7 @@ class DocView : FrameLayout,OnDownloadListener, OnWebLoadListener,OnPdfItemClick
                 docSourceType: Int, fileType: Int,
                 viewPdfInPage: Boolean = false,
                 engine: DocEngine = this.engine) {
-        var fileType = fileType
+        mFileType = fileType
         var docUrl = docUrl
         var docSourceType = docSourceType
         if (docUrl != null && docSourceType == DocSourceType.URI && fileType == -1) {
@@ -191,10 +192,10 @@ class DocView : FrameLayout,OnDownloadListener, OnWebLoadListener,OnPdfItemClick
             val file = UriUtils.uri2File(uri)
             if (file != null) {
                 var mimeType = ""
-                fileType = FileUtils.getFileTypeForUrl(file.absolutePath)
-                if (fileType == FileType.NOT_SUPPORT) {
+                mFileType = FileUtils.getFileTypeForUrl(file.absolutePath)
+                if (mFileType == FileType.NOT_SUPPORT) {
                     mimeType = FileUtils.getFileMimeType(context, uri) ?: "*/*"
-                    fileType = FileUtils.getFileTypeForUrl(FileUtils.mimeExtMap[mimeType] ?: "")
+                    mFileType = FileUtils.getFileTypeForUrl(FileUtils.mimeExtMap[mimeType] ?: "")
                 }
                 docUrl = file.absolutePath
                 docSourceType = DocSourceType.PATH
@@ -205,7 +206,7 @@ class DocView : FrameLayout,OnDownloadListener, OnWebLoadListener,OnPdfItemClick
                 Log.d(TAG, "file = null")
             }
         }
-        Log.e(TAG,"openDoc()......fileType = $fileType")
+        Log.e(TAG,"openDoc()......mFileType1 = $mFileType")
         mActivity = activity
         mViewPdfInPage = viewPdfInPage
         if (docSourceType == DocSourceType.PATH) {
@@ -226,9 +227,11 @@ class DocView : FrameLayout,OnDownloadListener, OnWebLoadListener,OnPdfItemClick
         }
 
         var type = FileUtils.getFileTypeForUrl(docUrl)
+        Log.e(TAG,"openDoc()......mFileType2 = $mFileType")
         if (fileType > 0) {
             type = fileType
         }
+        Log.e(TAG,"openDoc()......type = $type")
         when (type) {
             FileType.PDF -> {
                 Log.e(TAG,"openDoc()......PDF")
@@ -466,7 +469,7 @@ class DocView : FrameLayout,OnDownloadListener, OnWebLoadListener,OnPdfItemClick
         Log.e(TAG,"initWithUrl-onDownloadSuccess()......")
         showLoadingProgress(100)
         sourceFilePath = absolutePath
-        openDoc(mActivity, absolutePath, DocSourceType.PATH,-1,mViewPdfInPage)
+        openDoc(mActivity, absolutePath, DocSourceType.PATH,mFileType,mViewPdfInPage)
     }
 
     override fun onError(error: Throwable) {
